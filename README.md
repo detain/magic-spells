@@ -13,7 +13,7 @@ I wrote this for my daughter to use for the following reasons
 
 ## Links to helpful related content
 
-* [Speech Recognition](https://codepen.io/room_js/pen/armygW)
-* [Web Speech API Simple Demo](https://codepen.io/girliemac/pen/dmpxgv)
 * [Using the Web Speech API - Web APIs | MDN](https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API/Using_the_Web_Speech_API)
-* [mdn/web-speech-api: A repository for demos illustrating features of the Web Speech API. See https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API for more details.](https://github.com/mdn/web-speech-api)
+* [mdn/web-speech-api: demos illustrating features of the Web Speech API](https://github.com/mdn/web-speech-api)
+* [Stylish Speech Recognition Demo](https://codepen.io/room_js/pen/armygW)
+* [Web Speech API Simple Demo](https://codepen.io/girliemac/pen/dmpxgv)
