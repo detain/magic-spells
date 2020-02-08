@@ -4,7 +4,7 @@
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 		<meta name="viewport" content="width=device-width">
-		<title>Phrase matcher</title>
+		<title>Magic Spells</title>
 		<style type="text/css">
 			body, html {
 				margin: 0;
@@ -57,7 +57,7 @@
 		<![endif]-->
 	</head>
 	<body>
-		<h1>Phrase matcher</h1>
+		<h1>Magic Spells</h1>
 		<p>Press the button then say the phrase to test the recognition.</p>
 		<button>Start new test</button>
 		<div>
@@ -69,38 +69,31 @@
 			var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition;
 			var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList;
 			var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent;
-			var phrases = [
-				'I love to sing because it\'s fun',
-				'where are you going',
-				'can I call you tomorrow',
-				'why did you talk while I was talking',
-				'she enjoys reading books and playing games',
-				'where are you going',
-				'have a great day',
-				'she sells seashells on the seashore'
-			];
+			var letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+			var actions = ['go', 'back', 'undo', 'delete', 'backspace', 'reset'];
+			var words = ['apple', 'bridge', 'where', 'funny'];
 			var phrasePara = document.querySelector('.phrase');
 			var resultPara = document.querySelector('.result');
 			var diagnosticPara = document.querySelector('.output');
 			var testBtn = document.querySelector('button');
-			function randomPhrase() {
-				var number = Math.floor(Math.random() * phrases.length);
-				return number;
-			}
 			function testSpeech() {
 				testBtn.disabled = true;
 				testBtn.textContent = 'Test in progress';
-				var phrase = phrases[randomPhrase()];
+				var word = words[Math.floor(Math.random() * words.length)];
 				// To ensure case consistency while checking with the returned output text
-				phrase = phrase.toLowerCase();
+				word = word.toLowerCase();
 				phrasePara.textContent = phrase;
 				resultPara.textContent = 'Right or wrong?';
 				resultPara.style.background = 'rgba(0,0,0,0.2)';
 				diagnosticPara.textContent = '...diagnostic messages';
-				var grammar = '#JSGF V1.0; grammar phrase; public <phrase> = ' + phrase +';';
-				var recognition = new SpeechRecognition();
 				var speechRecognitionList = new SpeechGrammarList();
+				var grammar = '#JSGF V1.0; grammar letters; public <color> = ' + letters.join(' | ') + ' ;'
 				speechRecognitionList.addFromString(grammar, 1);
+				grammar = '#JSGF V1.0; grammar actions; public <color> = ' + actions.join(' | ') + ' ;'
+				speechRecognitionList.addFromString(grammar, 1);
+				grammar = '#JSGF V1.0; grammar word; public <phrase> = ' + word+';';
+				speechRecognitionList.addFromString(grammar, 1);
+				var recognition = new SpeechRecognition();
 				recognition.grammars = speechRecognitionList;
 				recognition.lang = 'en-US';
 				recognition.interimResults = false;
