@@ -219,6 +219,7 @@
 				//word = words[wordIdx];
 				word = word.toLowerCase();
 				wordPara.textContent = word;
+				speechSynthesis.speak(new SpeechSynthesisUtterance('How do you spell the word '+word));
 				resultPara.textContent = 'Right or wrong?';
 				resultPara.style.background = 'rgba(0,0,0,0.2)';
 				diagnosticPara.textContent = '...diagnostic messages';
@@ -239,6 +240,7 @@
 					if(speechResult === spell) {
 						resultPara.textContent = 'I heard the correct word!';
 						resultPara.style.background = 'lime';
+						speechSynthesis.speak(new SpeechSynthesisUtterance('Correct Spelling'));
 					} else {
 						resultPara.textContent = 'That didn\'t sound right.';
 						resultPara.style.background = 'red';
