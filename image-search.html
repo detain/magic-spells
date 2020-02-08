@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en" >
+	<head>
+		<meta charset="UTF-8">
+		<title>CodePen - Pixabay image search API with macy masonry library</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<style type="text/css">
+			* {
+				box-sizing: border-box;
+			}
+
+			html, body {
+				margin: 0 auto;
+				position: relative;
+				width: 100%;
+				height: 100%;
+				background-color: navajowhite;
+				background-color: ivory;
+				-webkit-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				user-select: none;
+			}
+
+			header {
+				position: relative;
+				width: 100%;
+				margin: 0 auto;
+				height: auto;
+				margin-bottom: 7px;
+				padding: 7px;
+			}
+
+			input[type=text] {
+				display: block;
+				background-color: navajowhite;
+				background-color: ivory;
+				text-align: center;
+				border: none;
+				border-bottom: 4px dashed lightblue;
+				outline: none;
+				width: 98%;
+				color: tomato;
+				margin: 0 auto;
+				margin-top: 5px;
+				margin-bottom: 10px;
+				font-size: 1.6em;
+				font-family: sans-serif;
+				padding: 5px;
+			}
+
+			#contentContainer {
+				display: block;
+				position: absolute;
+				width: 98%;
+				height: 100%;
+				max-width: 1200px;
+				margin: 0 auto;
+			}
+
+			.macy-img {
+				width: 150px;
+				height: 150px;
+			}
+
+			.macy-img img {
+				-o-object-fit: cover;
+				object-fit: cover;
+			}
+
+			.pagination-bar {
+				display: absolute;
+				width: 98%;
+				text-align: center;
+				margin: 0 auto;
+				font-size: 20px;
+				margin-top: 10px;
+				background-color: lightblue;
+			}
+
+			.pagination-bar a {
+				color: black;
+				padding: 8px 5px;
+				text-decoration: none;
+				margin: 10px;
+				color: black;
+			}
+
+			.active-pag {
+				background-color: tomato;
+				font-weight: 900;
+				border-radius: 50%;
+				-webkit-transition: all .4s;
+				transition: all .4s;
+			}
+
+			footer {
+				display: block;
+				position: fixed;
+				width: 100%;
+				height: 20px;
+				bottom: 0;
+				background-color: #0d261c;
+			}
+		</style>  
+
+	</head>
+	<body>
+		<!-- partial:index.partial.html -->
+		<header>
+			<input type = 'text' name = 'search' id='search' placeholder='Search Pixabay'>
+		</header> 
+
+		<div id = 'contentContainer'>
+			<div class = 'macy-img'><a><img></a></div>
+			<div class = 'macy-img'><a><img></a></div>
+			<div class = 'macy-img'><a><img></a></div>
+			<div class = 'macy-img'><a><img></a></div>
+			<div class = 'macy-img'><a><img></a></div>
+			<div class = 'macy-img'><a><img></a></div>
+			<div class = 'macy-img'><a><img></a></div>
+			<div class = 'macy-img'><a><img></a></div>
+			<div class = 'macy-img'><a><img></a></div>
+			<div class = 'macy-img'><a><img></a></div>
+			<div class = 'macy-img'><a><img></a></div>
+			<div class = 'macy-img'><a><img></a></div>
+		</div>
+
+
+		<div class="pagination-bar">
+			<a href="#" class="pagination-button pagination-button-arrow">«</a>
+			<a href="#" class="pagination-button pagination-button-num">1</a>
+			<a href="#" class="pagination-button pagination-button-num">2</a>
+			<a href="#" class="pagination-button pagination-button-num">3</a>
+			<a href="#" class="pagination-button pagination-button-num">4</a>
+			<a href="#" class="pagination-button pagination-button-arrow">»</a>
+		</div>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
+		<script src='https://cdn.jsdelivr.net/npm/macy@2.3.0/dist/macy.min.js'></script>
+		<script type="text/javascript">
+			// pixabay API key
+			var pixabayAPI_KEY = "7126297-c5a1bdd21b4ba1a7d9969984b";
+			var resultsPerPageAPI = "&per_page=12";
+			// API request fragment
+			var currentPageAPI = "&page=1";
+			// API request fragment.  to be filled by text input.
+			var searchQuery = "";
+			var currentPage = 1;
+			var URL = "";
+
+			var macy = null;
+
+			// gets all img elments inside the macy container
+			// each img element has an a element as a parent
+			var $macyImg = $(".macy-img a img");
+			// gets all numeric pagination links
+			var $pagNumButtons = $(".pagination-button-num");
+			// gets all arrow pagination buttons
+			var $pagArrowButtons = $(".pagination-button-arrow");
+			var RawJSONData = {};                                
+			// currentPageAPI is initialized to 1
+			function requestJSONData(URL, currentPageAPI) {
+				// gets the value from the text input
+				window.currentPageAPI = currentPageAPI;
+				window.searchQuery = document.getElementById("search").value;
+				console.log("searchQuery: " + searchQuery);
+				// currentPageAPI is initialized to 1.  resultsPerPageAPI is initialized to 12.
+				// alert(window.currentPageAPI);
+				URL = "https://pixabay.com/api/?key=" + pixabayAPI_KEY + "&q=" + encodeURIComponent(searchQuery) +
+				currentPageAPI + resultsPerPageAPI;
+
+				$.getJSON(URL, function(data) {
+					console.log("URL: " + URL);
+					// gets the JSON data
+					window.RawJSONData = data;
+					// data.totalHits contains the total number of results for our query
+					console.log("total hits: " + data.totalHits);
+					// if there are results..
+
+					if (parseInt(data.totalHits) > 0) {
+						// if search results exist....
+						data.hits.forEach(function(searchResult, index) {
+							$macyImg[index].src = searchResult.previewURL;
+							$macyImg[index].parentNode.href = searchResult.largeImageURL;
+							$macyImg[index].style.width = "100%";
+							$macyImg[index].style.height = "100%";    
+							$macyImg[index].parentNode.target = "#";
+							// macy.reInit();
+
+						});
+						macy.reInit();
+					} 
+					else {
+						alert("No results!");
+						console.log("No results");
+						return null;
+					}
+
+				});
+			} // close function
+
+			function resetPagLabels() {
+				$pagNumButtons.each(function(index, pag) {
+					pag.innerText = index + 1;
+				});
+			}
+
+			$(document).ready(function() {
+
+				requestJSONData(URL, window.currentPageAPI);//////////////////////////!!!
+				$('.pagination-button-num:first').toggleClass('active-pag');
+				// initialization of macy.js
+				window.macy = Macy({
+					container: "#contentContainer",
+					trueOrder: false,
+					waitForImages: false,
+					margin: 10,
+					columns: 4,
+					breakAt: {
+						1200: 4,
+						940: 4,
+						520: 2,
+						400: 1
+					}
+				});
+				macy.reInit();
+				$("input").on("keypress", function(e) {
+					// event handler for enter key on text input
+					var code = e.keyCode || e.which;
+					// if enter was pressed...
+					if (code == 13) {
+						// when enter key is detected on input, clear previous search parameters
+						// resetSearch();
+						resetPagLabels();
+						window.currentPage = 1;
+						window.currentPageAPI = "&page=1";
+						// alert(currentPage);
+						$pagNumButtons.each(function(index, pag) {
+							// on query, remove active-pag class from all pag buttons
+							if (pag.classList.contains("active-pag")) {
+								pag.classList.remove("active-pag");
+							}
+						});
+						$pagNumButtons[0].classList.add("active-pag");
+						requestJSONData(URL, currentPageAPI);
+					}
+				});
+
+				$(".pagination-button-num").on("click", function(event) {
+					// resetSearch();
+					// get the value of the pag button
+					var clickedPageNum = event.target.innerText;
+
+					if (parseInt(clickedPageNum) == currentPage) {
+						// if you clicked the page you're already on
+						// alert("you're there already");
+						return null;
+					}
+					// currentPage is the interger formatted page number
+					window.currentPage = parseInt(clickedPageNum); //////////
+					// alert("clickedPageNum: "+clickedPageNum);
+					// currentPageAPI is the current page number formatted for the pixabay API
+					window.currentPageAPI = ("&page=" + clickedPageNum).toString();
+					// alert(currentPageAPI);/////////
+
+					$pagNumButtons.each(function(index, pag) {
+						pag.classList.remove("active-pag");
+					});
+					event.target.classList.toggle("active-pag");
+					requestJSONData(URL, currentPageAPI);
+				});
+
+				$(".pagination-button-arrow").on("click", function(event) {
+					// get the clicked arrow..
+					// resetSearch();
+					var clickedArrow = event.target.innerText;
+					if (clickedArrow == "»") {
+						if ($(".pagination-button-num:last").text() > window.currentPage) {
+							// if the current page is greater than the last patination button value...
+							// increment currentPage
+							window.currentPage = parseInt(window.currentPage) + 1;
+							// alert('window.currentPage: ' + window.currentPage);
+							window.currentPageAPI = "&page=" + window.currentPage.toString();
+							// alert('window.currentPageAPI: ' + window.currentPageAPI);
+							var nextPag = $($(".active-pag")[0]).next(".pagination-button-num")[0];
+							console.log(nextPag);
+							$pagNumButtons.each(function(index, pag) {
+								if (pag.classList.contains("active-pag")) {
+									pag.classList.toggle("active-pag");
+								}
+							});
+							nextPag.classList.add("active-pag");
+							requestJSONData(URL, currentPageAPI);
+							return null;
+						} 
+						else if ($(".pagination-button-num:last").text() == currentPage) {
+							var stepSize = 4;
+							// alert(currentPage);
+
+							$pagNumButtons.each(function(index, pag) {
+								// relabel each link to current value + step size
+								pag.innerText = parseInt(pag.innerText) + stepSize;
+							});
+							$(".pagination-button-num:last").toggleClass("active-pag");
+							$(".pagination-button-num:first").toggleClass("active-pag");
+						}
+						// alert("window.currentPage: " + window.currentPage);
+						window.currentPage = parseInt($(".pagination-button-num:first").text());
+						window.currentPageAPI = "&page=" + currentPage.toString();
+						requestJSONData(URL, window.currentPageAPI);
+					} 
+					else if (clickedArrow == "«") {
+						// if the currentPage is already the lowest page in our range...
+						if (currentPage == 1) {
+							alert("cant go below 1..");
+							return null;
+						} 
+						else if (window.currentPage == $(".pagination-button-num:first").text()) {
+							// alert('lower bound detected');
+							var stepSize = 4;
+							window.currentPage = parseInt($(".pagination-button-num:first").text()) - 1;
+							window.currentPageAPI = ("&page=" + window.currentPage).toString();
+							// alert(window.currentPage);
+							// alert(window.currentPageAPI);
+							$pagNumButtons.each(function(index, pag) {
+								// relabel each link to current value + step size
+								pag.innerText = parseInt(pag.innerText) - stepSize;
+							});
+							requestJSONData(URL, currentPageAPI);
+							$(".pagination-button-num:first").removeClass("active-pag");
+							$(".pagination-button-num:last").addClass("active-pag");
+						} 
+						else {
+							window.currentPage--;
+							window.currentPageAPI = ("&page=" + window.currentPage).toString();
+							console.log("URL from « logic:" + window.URL);
+							var prevPag = $($(".active-pag")[0]).prev(".pagination-button-num")[0];
+							$pagNumButtons.each(function(index, pag) {
+								if (pag.classList.contains("active-pag")) {
+									pag.classList.toggle("active-pag");
+								}
+							});
+							prevPag.classList.toggle("active-pag");
+							requestJSONData(URL, currentPageAPI);
+						}
+					}
+				});
+			}); // close $(document).ready function
+		</script>
+	</body>
+</html>
