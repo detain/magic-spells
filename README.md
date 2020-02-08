@@ -17,3 +17,7 @@ I wrote this for my daughter to use for the following reasons
 * [mdn/web-speech-api: demos illustrating features of the Web Speech API](https://github.com/mdn/web-speech-api)
 * [Stylish Speech Recognition Demo](https://codepen.io/room_js/pen/armygW)
 * [Web Speech API Simple Demo](https://codepen.io/girliemac/pen/dmpxgv)
+* [CodePen - Pixabay image search API with macy masonry library](https://my.interserver.net/magic-spells/image-search.html)
+* [Text Effect - a Collection by Ahmad Hania on CodePen](https://codepen.io/collection/tDlug)
+* [Text Effects - a Collection by Mandy Michael on CodePen](https://codepen.io/collection/DamKJW)
+* [SVG Text Effects - a Collection by yoksel on CodePen](https://codepen.io/collection/DPYwYN?cursor=ZD0wJm89MSZwPTEmdj0xODk2MzA4)
