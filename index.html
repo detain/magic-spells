@@ -6,17 +6,65 @@
 		<meta name="viewport" content="width=device-width">
 		<title>Magic Spells</title>
 		<style type="text/css">
-			body, html {
-				margin: 0;
+			* {
+				box-sizing: border-box;
 			}
-			html {
+
+			html, body {
+				margin: 0 auto;
+				position: relative;
+				width: 100%;
 				height: 100%;
-				background-color: teal;
+				-webkit-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				user-select: none;
 			}
-			body {
-				height: inherit;
-				overflow: hidden;
+
+			header {
+				position: relative;
+				width: 100%;
+				margin: 0 auto;
+				height: auto;
+				margin-bottom: 7px;
+				padding: 7px;
 			}
+
+			input[type=text] {
+				display: block;
+				text-align: center;
+				border: none;
+				border-bottom: 4px dashed lightblue;
+				outline: none;
+				width: 98%;
+				color: tomato;
+				margin: 0 auto;
+				margin-top: 5px;
+				margin-bottom: 10px;
+				font-size: 1.6em;
+				font-family: sans-serif;
+				padding: 5px;
+			}
+
+			#contentContainer {
+				display: block;
+				position: absolute;
+				width: 98%;
+				height: 100%;
+				max-width: 1200px;
+				margin: 0 auto;
+			}
+
+			.macy-img {
+				width: 150px;
+				height: 150px;
+			}
+
+			.macy-img img {
+				-o-object-fit: cover;
+				object-fit: cover;
+			}
+		
 			h1, p {
 				font-family: sans-serif;
 				text-align: center;
@@ -45,7 +93,7 @@
 					position: static;
 				}
 			}
-			.phrase {
+			.word {
 				font-weight: bold;
 			}
 			.output {
@@ -58,46 +106,122 @@
 	</head>
 	<body>
 		<h1>Magic Spells</h1>
-		<p>Press the button then say the phrase to test the recognition.</p>
+		<p>Press the button then say the word to test the recognition.</p>
 		<button>Start new test</button>
+		<div id = 'contentContainer'>
+			<div class = 'macy-img'><a><img></a></div>
+			<div class = 'macy-img'><a><img></a></div>
+			<div class = 'macy-img'><a><img></a></div>
+			<div class = 'macy-img'><a><img></a></div>
+			<div class = 'macy-img'><a><img></a></div>
+			<div class = 'macy-img'><a><img></a></div>
+			<div class = 'macy-img'><a><img></a></div>
+			<div class = 'macy-img'><a><img></a></div>
+			<div class = 'macy-img'><a><img></a></div>
+			<div class = 'macy-img'><a><img></a></div>
+			<div class = 'macy-img'><a><img></a></div>
+			<div class = 'macy-img'><a><img></a></div>
+		</div>
 		<div>
-			<p class="phrase">Phrase...</p>
+			<p class="word">word...</p>
 			<p class="result">Right or wrong?</p>
 			<p class="output">...diagnostic messages</p>
 		</div>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
+		<script src='https://cdn.jsdelivr.net/npm/macy@2.3.0/dist/macy.min.js'></script>
 		<script type="text/javascript">
+			// pixabay API key
+			var pixabayAPI_KEY = "7126297-c5a1bdd21b4ba1a7d9969984b";
+			var currentPage = 1;
+			var macy = null;
+			// gets all img elments inside the macy container
+			// each img element has an a element as a parent
+			var $macyImg = $(".macy-img a img");
+			var RawJSONData = {};
+			
 			var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition;
 			var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList;
 			var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent;
 			var letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
 			var actions = ['go', 'back', 'undo', 'delete', 'backspace', 'reset'];
-			var words = ['apple', 'bridge', 'where', 'funny'];
-			var phrasePara = document.querySelector('.phrase');
+			var words = ['bridge', 'apple', 'where', 'funny'];
+			var spells = [];
+			var score = 0;
+			var wordIdx = 0;
+			var word;
+			var speechRecognitionList = new SpeechGrammarList();
+			var recognition = new SpeechRecognition();
+			var grammar;
+			var wordPara = document.querySelector('.word');
 			var resultPara = document.querySelector('.result');
 			var diagnosticPara = document.querySelector('.output');
 			var testBtn = document.querySelector('button');
+			for (var x = 0, xMax = words.length, wordArray = []; x < xMax; x++) {				
+				for (var y = 0, yMax = words[x].length; y < yMax; y++) {
+					wordArray[wordArray.length] = words[x][y];
+				}
+				spells[spells.length] = wordArray.join(' ');
+			}
+			grammar = '#JSGF V1.0; grammar letters; public <color> = ' + letters.join(' | ') + ' ;'
+			speechRecognitionList.addFromString(grammar, 1);
+			grammar = '#JSGF V1.0; grammar actions; public <color> = ' + actions.join(' | ') + ' ;'
+			speechRecognitionList.addFromString(grammar, 1);
+			grammar = '#JSGF V1.0; grammar words; public <word> = ' + spells.join(' | ') + ' ;'
+			speechRecognitionList.addFromString(grammar, 1);
+			recognition.grammars = speechRecognitionList;
+			recognition.lang = 'en-US';
+			recognition.continuous = true;
+			recognition.interimResults = true;
+			recognition.maxAlternatives = 3;
+
+			
+			function requestJSONData(searchQuery) {
+				// gets the value from the text input
+				console.log("searchQuery: " + searchQuery);
+				searchUrl = "https://pixabay.com/api/?key=" + pixabayAPI_KEY + "&page=1&per_page=12&q=" + encodeURIComponent(searchQuery);
+															$.getJSON(searchUrl, function(data) {
+					console.log("URL: " + searchUrl);
+					// gets the JSON data
+					window.RawJSONData = data;
+					// data.totalHits contains the total number of results for our query
+					console.log("total hits: " + data.totalHits);
+					// if there are results..
+					if (parseInt(data.totalHits) > 0) {
+						// if search results exist....
+						data.hits.forEach(function(searchResult, index) {
+							$macyImg[index].src = searchResult.previewURL;
+							$macyImg[index].parentNode.href = searchResult.largeImageURL;
+							$macyImg[index].style.width = "100%";
+							$macyImg[index].style.height = "100%";    
+							$macyImg[index].parentNode.target = "#";
+							// macy.reInit();
+
+						});
+						macy.reInit();
+					} 
+					else {
+						alert("No results!");
+						console.log("No results");
+						return null;
+					}
+				});
+			} // close function
+
 			function testSpeech() {
+				word = words[wordIdx];
+				console.log('working on word '+word);
+				requestJSONData(word);
+				spell = spells[wordIdx];
 				testBtn.disabled = true;
 				testBtn.textContent = 'Test in progress';
-				var word = words[Math.floor(Math.random() * words.length)];
+				//var word = words[Math.floor(Math.random() * words.length)];
 				// To ensure case consistency while checking with the returned output text
+				//word = words[wordIdx];
 				word = word.toLowerCase();
-				phrasePara.textContent = phrase;
+				wordPara.textContent = word;
 				resultPara.textContent = 'Right or wrong?';
 				resultPara.style.background = 'rgba(0,0,0,0.2)';
 				diagnosticPara.textContent = '...diagnostic messages';
-				var speechRecognitionList = new SpeechGrammarList();
-				var grammar = '#JSGF V1.0; grammar letters; public <color> = ' + letters.join(' | ') + ' ;'
-				speechRecognitionList.addFromString(grammar, 1);
-				grammar = '#JSGF V1.0; grammar actions; public <color> = ' + actions.join(' | ') + ' ;'
-				speechRecognitionList.addFromString(grammar, 1);
-				grammar = '#JSGF V1.0; grammar word; public <phrase> = ' + word+';';
-				speechRecognitionList.addFromString(grammar, 1);
-				var recognition = new SpeechRecognition();
-				recognition.grammars = speechRecognitionList;
-				recognition.lang = 'en-US';
-				recognition.interimResults = false;
-				recognition.maxAlternatives = 1;
 				recognition.start();
 				recognition.onresult = function(event) {
 					// The SpeechRecognitionEvent results property returns a SpeechRecognitionResultList object
@@ -107,17 +231,19 @@
 					// Each SpeechRecognitionResult object contains SpeechRecognitionAlternative objects that contain individual results.
 					// These also have getters so they can be accessed like arrays.
 					// The second [0] returns the SpeechRecognitionAlternative at position 0.
-					// We then return the transcript property of the SpeechRecognitionAlternative object 
+					// We then return the transcript property of the SpeechRecognitionAlternative object
+					console.log(event); 
 					var speechResult = event.results[0][0].transcript.toLowerCase();
+					console.log('Speech Constent:'+speechResult);
 					diagnosticPara.textContent = 'Speech received: ' + speechResult + '.';
-					if(speechResult === phrase) {
-						resultPara.textContent = 'I heard the correct phrase!';
+					if(speechResult === spell) {
+						resultPara.textContent = 'I heard the correct word!';
 						resultPara.style.background = 'lime';
 					} else {
 						resultPara.textContent = 'That didn\'t sound right.';
 						resultPara.style.background = 'red';
 					}
-					console.log('Confidence: ' + event.results[0][0].confidence);
+					//console.log('Confidence: ' + event.results[0][0].confidence);
 				}
 				recognition.onspeechend = function() {
 					recognition.stop();
@@ -162,6 +288,28 @@
 					console.log('SpeechRecognition.onstart');
 				}
 			}
+			
+			$(document).ready(function() {
+				//requestJSONData(searchUrl, window.currentPageAPI);//////////////////////////!!!
+				// initialization of macy.js
+				window.macy = Macy({
+					container: "#contentContainer",
+					trueOrder: false,
+					waitForImages: false,
+					margin: 10,
+					columns: 4,
+					breakAt: {
+						1200: 4,
+						940: 4,
+						520: 2,
+						400: 1
+					}
+				});
+				macy.reInit();
+
+			}); // close $(document).ready function
+					
+		
 			testBtn.addEventListener('click', testSpeech);
 		</script>
 	</body>
